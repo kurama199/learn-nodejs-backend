@@ -49,10 +49,10 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  this.password = bcrypt.hash(this.password, 10);
-  next();
+userSchema.pre('save', async function () {
+  // console.log('next is ', next);
+  if (!this.isModified('password')) return;
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
@@ -80,4 +80,4 @@ userSchema.methods.generateRefreshToken = function () {
     { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
   );
 };
-const User = mongoose.model('User', userSchema);
+export const User = mongoose.model('User', userSchema);
