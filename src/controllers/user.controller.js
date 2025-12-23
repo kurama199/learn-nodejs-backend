@@ -16,7 +16,8 @@ const generateAccessOrRefreshToken = async (userId) => {
   } catch (error) {
     throw new ApiError(
       500,
-      'Something went wrong while generating Refresh and Access Token'
+      error?.message ||
+        'Something went wrong while generating Refresh and Access Token'
     );
   }
 };
@@ -171,20 +172,25 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   if (!incomingRefreshToken) {
     throw new ApiError(401, 'Unauthorized request');
   }
-
+  debugger;
   try {
     const decodedToken = jwt.verify(
       incomingRefreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
+    console.log('decodedToken is ', decodedToken);
 
     const userFromRefreshToken = await User.findById(decodedToken._id);
 
     if (!userFromRefreshToken) {
       throw new ApiError(401, 'Invalid refresh token');
     }
-
-    if (userFromRefreshToken !== incomingRefreshToken) {
+    console.log(
+      'o/p userFromRefreshToken.refreshToken ',
+      userFromRefreshToken.refreshToken
+    );
+    console.log('o/p incomingRefreshToken', incomingRefreshToken);
+    if (userFromRefreshToken.refreshToken !== incomingRefreshToken) {
       throw new ApiError(401, 'Refresh token is expired or used');
     }
 
